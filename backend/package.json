@@ -9,7 +9,7 @@
     "lint:fix": "eslint 'src/**/*.ts' --fix",
     "format": "prettier --write .",
     "prettier": "prettier --write --ignore-unknown .",
-    "build": "tsc && copyfiles -u 1 'src/swagger/swagger.yaml' 'dist/swagger'",
+    "build": "tsc && copyfiles -u 2 'src/swagger/swagger.yaml' 'dist/swagger/'",
     "prepare": "husky",
     "seed": "npx prisma db seed"
   },

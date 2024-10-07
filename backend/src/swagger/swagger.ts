@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const swaggerFilePath =
-  process.env.NODE_ENV === 'production' ? path.join(__dirname, 'swagger.yaml') : path.join(process.cwd(), 'src/swagger/swagger.yaml');
+  process.env.NODE_ENV === 'production' ? path.join(__dirname, 'swagger/swagger.yaml') : path.join(process.cwd(), 'src/swagger/swagger.yaml');
 
 const swaggerDocument = yaml.load(fs.readFileSync(swaggerFilePath, 'utf8'));
 
