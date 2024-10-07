@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  // USER
+  // SUPERADMIN
+}
+
+model Admin {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  password     String
+  role         Role     @default(ADMIN)
+  refreshToken String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  password     String
+  role         Role     @default(ADMIN)
+  refreshToken String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Staff {
+  id             Int      @id @default(autoincrement())
+  surname        String
+  otherNames     String
+  dateOfBirth    DateTime
+  photoId        String?
+  uniqueCode     String   @unique
+  employeeNumber String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  StaffCode StaffCode?
+}
+
+model StaffCode {
+  id        Int       @id @default(autoincrement())
+  code      String    @unique
+  used      Boolean   @default(false)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  staff   Staff? @relation(fields: [staffId], references: [id])
+  staffId Int?   @unique
+}
+
+model ApiPerformance {
+  id           Int      @id @default(autoincrement())
+  endpoint     String
+  method       String
+  success      Boolean
+  statusCode   Int
+  responseTime Int
+  createdAt    DateTime @default(now())
+}

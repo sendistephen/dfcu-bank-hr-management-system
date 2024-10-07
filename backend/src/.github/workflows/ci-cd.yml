@@ -1,0 +1,106 @@
+name: Full CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  backend-build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      # Step 3: Change directory to backend
+      - name: Change directory to backend
+        working-directory: ./backend
+        run: yarn install
+
+      # Step 4: Run ESLint (linting step)
+      - name: Run ESLint for backend
+        working-directory: ./backend
+        run: yarn lint
+
+      # Step 5: Build the backend app
+      - name: Build the backend
+        working-directory: ./backend
+        run: yarn build
+
+      # Step 6: Install Render CLI for backend deployment
+      - name: Install Render CLI for backend
+        run: curl -fsSL https://cli.render.com/install.sh | bash
+
+      # Step 7: Authenticate Render CLI
+      - name: Authenticate Render CLI for backend
+        run: render login --api-key ${{ secrets.RENDER_API_KEY }}
+
+      # Step 8: Push Prisma Schema and Seed Database for backend
+      - name: Push Prisma Schema to Database and Seed Data for backend
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+        working-directory: ./backend
+        run: |
+          npx prisma generate
+          npx prisma db push
+          npx prisma db seed
+
+      # Step 9: Deploy backend to Render
+      - name: Deploy Backend to Render
+        working-directory: ./backend
+        run: render deploy --service-id ${{ secrets.RENDER_SERVICE_ID }}
+
+  # frontend-build-deploy:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     # Step 1: Checkout the code
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+
+  #     # Step 2: Set up Node.js for frontend
+  #     - name: Set up Node.js for frontend
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: '18'
+
+  #     # Step 3: Change directory to frontend
+  #     - name: Change directory to frontend
+  #       working-directory: ./frontend
+  #       run: yarn install
+
+  #     # Step 4: Run ESLint (linting step)
+  #     - name: Run ESLint for frontend
+  #       working-directory: ./frontend
+  #       run: yarn lint
+
+  #     # Step 5: Build the frontend app
+  #     - name: Build the frontend
+  #       working-directory: ./frontend
+  #       run: yarn build
+
+  #     # Step 6: Install Render CLI for frontend deployment
+  #     - name: Install Render CLI for frontend
+  #       run: curl -fsSL https://cli.render.com/install.sh | bash
+
+  #     # Step 7: Authenticate Render CLI for frontend
+  #     - name: Authenticate Render CLI for frontend
+  #       run: render login --api-key ${{ secrets.RENDER_API_KEY }}
+
+  #     # Step 8: Deploy frontend to Render
+  #     - name: Deploy Frontend to Render
+  #       working-directory: ./frontend
+  #       run: render deploy --service-id ${{ secrets.RENDER_SERVICE_ID_FRONTEND }}
