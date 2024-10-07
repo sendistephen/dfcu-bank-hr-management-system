@@ -57,15 +57,14 @@ export const createStaffCode = async () => {
 export const registerNewStaff = async (data: {
   surname: string;
   otherNames: string;
-  dateOfBirth: string; // Expected in ISO 8601 format from the client
+  dateOfBirth: string; // Expected in YYYY-MM-DD format
   photoId?: string;
   code: string;
 }) => {
-  // Parse the dateOfBirth to ensure it's ISO 8601 and then a valid Date object
-  const parsedDateOfBirth = new Date(data.dateOfBirth);
+  const dateOfBirthRegex = /^\d{4}-\d{2}-\d{2}$/;
 
-  if (isNaN(parsedDateOfBirth.getTime())) {
-    throw new Error('Invalid date format. Date of birth must be in ISO 8601 format.');
+  if (!dateOfBirthRegex.test(data.dateOfBirth)) {
+    throw new Error('Invalid date format. Date of birth must be in YYYY-MM-DD format.');
   }
 
   // Validate the staff code
@@ -88,12 +87,12 @@ export const registerNewStaff = async (data: {
   // Generate the employee number (e.g., DFCU123)
   const employeeNumber = generateEmployeeNumber();
 
-  // Register the staff in the database with the parsed Date object
+  // Register the staff in the database, using the dateOfBirth string as is
   const newStaff = await prisma.staff.create({
     data: {
       surname: data.surname,
       otherNames: data.otherNames,
-      dateOfBirth: parsedDateOfBirth, // Use the JavaScript Date object
+      dateOfBirth: data.dateOfBirth,
       photoId: data.photoId,
       uniqueCode: staffCode.code,
       employeeNumber,
