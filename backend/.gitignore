@@ -13,8 +13,8 @@ node_modules
 # Build Outputs
 out/
 build
-dist
-dist/
+# dist
+# dist/
 
 # Coverage directory used by testing frameworks
 coverage/

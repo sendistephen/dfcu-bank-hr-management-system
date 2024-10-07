@@ -1,16 +1,14 @@
-import yaml from 'js-yaml';
-import express from 'express';
-import swaggerUi from 'swagger-ui-express';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { Application } from 'express';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// swagger.js or swagger.ts
+const yaml = require('js-yaml');
+const swaggerUi = require('swagger-ui-express');
+const fs = require('fs');
+const path = require('path');
 
-const swaggerDocument = yaml.load(fs.readFileSync(join(__dirname, './swagger.yaml'), 'utf8'));
-
-const setupSwaggerDocs = (app: express.Application): void => {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument as object));
+const swaggerDocument = yaml.load(fs.readFileSync(path.join(process.cwd(), 'src/swagger/swagger.yaml'), 'utf8'));
+const setupSwaggerDocs = (app: Application) => {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 };
 
-export default setupSwaggerDocs;
+module.exports = setupSwaggerDocs;

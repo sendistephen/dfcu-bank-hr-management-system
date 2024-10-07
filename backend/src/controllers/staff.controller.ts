@@ -57,33 +57,27 @@ export const getStaff = async (req: Request, res: Response, next: NextFunction):
   try {
     const { employeeNumber } = req.query;
 
-    if (!employeeNumber) {
-      // If no employee number is provided, return all staff
+    if (!employeeNumber || employeeNumber === 'undefined') {
       const staffList = await getAllStaff();
       res.status(200).json(staffList);
+      return;
     }
 
-    // Only allow access to admins and owners
     const userRole = req.userRole;
     if (userRole !== 'ADMIN' && req.userId !== employeeNumber) {
       throw new UnauthorizedError('You are not authorized to access this resource');
     }
 
-    console.log('EMPLOYEE NUMBER', employeeNumber);
-    if (employeeNumber) {
-      // Retrieve staff by employee number
-      const staff = await getStaffByEmployeeNumber(employeeNumber as string);
-      if (!staff) {
-        res.status(404).json({ message: 'Staff member not found' });
-        return;
-      }
-      res.status(200).json(staff);
-    } else {
-      // Retrieve all staff
-      const staffList = await getAllStaff();
-      res.status(200).json(staffList);
+    const staff = await getStaffByEmployeeNumber(employeeNumber as string);
+    if (!staff) {
+      console.log(`Staff member with employee number ${employeeNumber} not found.`);
+      res.status(404).json({ message: 'Staff member not found' });
       return;
     }
+
+    // Success: staff member found, send staff data
+    res.status(200).json(staff);
+    return;
   } catch (error) {
     next(error);
   }

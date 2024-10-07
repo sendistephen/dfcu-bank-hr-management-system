@@ -4,6 +4,7 @@ interface CustomError extends Error {
   statusCode?: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const errorHandler = (err: CustomError, req: express.Request, res: express.Response, next: express.NextFunction): void => {
   // Log the error stack in development for debugging purposes
   if (process.env.NODE_ENV === 'development') {
@@ -32,7 +33,6 @@ const errorHandler = (err: CustomError, req: express.Request, res: express.Respo
 
   // Send the response
   res.status(statusCode).json(response);
-  next();
 };
 
 export default errorHandler;
