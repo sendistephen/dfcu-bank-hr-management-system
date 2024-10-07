@@ -4,17 +4,29 @@ interface CustomError extends Error {
   statusCode?: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/**
+ * Centralized error handler middleware for Express.js
+ *
+ * @param {Error & { statusCode?: number }} err - The error object to be handled
+ * @param {import('express').Request} req - The Express.js request object
+ * @param {import('express').Response} res - The Express.js response object
+ * @param {import('express').NextFunction} next - The next middleware function in the stack
+ *
+ * @description
+ * This middleware logs the error stack in development mode and constructs a JSON response with
+ * the error status code, message, and optional stack trace. The response is sent with the
+ * appropriate HTTP status code.
+ *
+ * @see https://expressjs.com/en/guide/error-handling.html
+ */
 const errorHandler = (err: CustomError, req: express.Request, res: express.Response, next: express.NextFunction): void => {
-  // Log the error stack in development for debugging purposes
   if (process.env.NODE_ENV === 'development') {
     console.error('Error stack: ', err.stack);
   }
 
-  // Determine the status code based on the err type
   const statusCode = err.statusCode || 500;
 
-  // Construct the response object
+  // Construct the response object with status code, message, and optional stack trace
   const response: {
     success: boolean;
     statusCode: number;
@@ -26,12 +38,11 @@ const errorHandler = (err: CustomError, req: express.Request, res: express.Respo
     message: err.message || 'Internal Server Error',
   };
 
-  // Include the stack trace in the response if in development
   if (process.env.NODE_ENV === 'development' && err.stack) {
     response.stack = err.stack;
   }
 
-  // Send the response
+  // Send the constructed error response as JSON
   res.status(statusCode).json(response);
 };
 

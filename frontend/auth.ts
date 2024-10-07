@@ -1,78 +1,57 @@
 import NextAuth from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
+import authConfig from '@/auth.config';
 
-export const authOptions = {
-  providers: [
-    CredentialsProvider({
-      name: 'Credentials',
-      credentials: {
-        email: {
-          label: 'Email',
-          type: 'text',
-          placeholder: 'your-email@example.com',
-        },
-        password: { label: 'Password', type: 'password' },
-      },
-      async authorize(credentials) {
-        try {
-          // Make API request to backend for login
-          const res = await fetch('http://localhost:8900/auth/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: credentials?.email,
-              password: credentials?.password,
-            }),
-          });
+const BASE_URL = 'https://dfcu-bank-hr-management-system-api.onrender.com/api'; // Direct base URL
 
-          const user = await res.json();
-
-          // If login fails, throw an error
-          if (!res.ok || !user) {
-            throw new Error(user.message || 'Login failed');
-          }
-
-          return user; // Return the user object to NextAuth
-        } catch (error) {
-          console.error('Error during login:', error);
-          return null; // Return null if login fails
-        }
-      },
-    }),
-  ],
-  session: {
-    strategy: 'jwt',
-  },
-  jwt: {
-    secret: process.env.JWT_SECRET, // Use your own secret
-  },
-  pages: {
-    signIn: '/login',
-  },
+export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
-    async jwt({ token, user }) {
-      // If user exists (i.e., login successful), include their details in the token
-      if (user) {
-        token.id = user.id;
-        token.role = user.role;
-        token.accessToken = user.accessToken;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      // Add user details to session
-      if (token) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-        session.accessToken = token.accessToken;
+    async session({ token, session }) {
+      console.log('Session', token);
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+        session.user.role = token.role as string;
+        session.user.username = token.username as string;
       }
       return session;
     },
-  },
-  // Enable debug mode for development
-  debug: process.env.NODE_ENV === 'development',
-};
 
-export default NextAuth(authOptions);
+    async jwt({ token }) {
+      console.log('JWT', token);
+      // If user ID exists, fetch user details from the backend API
+      if (!token.sub) return token;
+
+      try {
+        const res = await fetch(`${BASE_URL}/auth/user/${token.sub}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        console.log('RESPONSE*****', res.json());
+        const foundUser = await res.json();
+      
+
+        if (!res.ok || !foundUser.success) return token;
+
+        token.role = foundUser.user.role;
+        token.username = foundUser.user.username;
+
+        return token;
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        return token;
+      }
+    },
+  },
+
+  ...authConfig,
+  session: {
+    strategy: 'jwt',
+  },
+
+  pages: {
+    signIn: '/login', // Custom login page
+  },
+
+  secret: process.env.NEXTAUTH_SECRET,
+});

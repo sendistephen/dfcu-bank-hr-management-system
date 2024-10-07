@@ -1,4 +1,5 @@
 // import { auth } from '@/auth';
+import { auth } from '@/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3, PieChart } from 'lucide-react';
 
@@ -12,10 +13,11 @@ const Dashboard = async () => {
   const successRate =
     (apiPerformanceData.successfulRequests / apiPerformanceData.totalRequests) *
     100;
-  // const session = await auth();
+  const session = await auth();
+  console.log(session);
   return (
     <div>
-      {/* <h2 className="text-sm font-bold">Welcome {session?.user?.username}</h2> */}
+      <h2 className="text-sm font-bold">Welcome {session?.user?.name}</h2>
       <div>
         <div className="space-y-4 h-full">
           <Card>

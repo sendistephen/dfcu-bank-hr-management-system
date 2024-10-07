@@ -1,4 +1,5 @@
 import 'tsconfig-paths/register';
+import cors from 'cors'; // Import cors
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -10,24 +11,26 @@ import authRoutes from './routes/auth.routes';
 import staffRoutes from './routes/staff.routes';
 import prisma from './utils/prisma';
 
-// const setupSwaggerDocs = require('./swagger/swagger');
-
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8900;
+
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  })
+);
 
 app.use(helmet());
 
 app.use(express.json());
 app.use(cookieParser());
 
-// Configure Swagger
-// setupSwaggerDocs(app);
-
+// Middleware for logging API performance
 app.use(logApiPerformance);
 
-// Routes
 app.get('/api', (req, res) => {
   res.json({
     message:
@@ -35,24 +38,25 @@ app.get('/api', (req, res) => {
   });
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/staff', staffRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/auth', authRoutes); // Authentication routes
+app.use('/api/staff', staffRoutes); // Staff management routes
+app.use('/api/admin', adminRoutes); // Admin-specific routes
 
-// middleware
+// Custom error handler middleware for handling errors across the app
 app.use(errorHandler);
 
-// check db connection when server starts
+// Check the database connection when server starts
 const connectToDatabase = async () => {
   try {
     await prisma.$connect();
     console.log('Connected to database');
   } catch (error) {
-    console.log('Failed to connect to database', error);
+    console.error('Failed to connect to database', error);
     process.exit(1);
   }
 };
 
+// Start the server once the database connection is established
 connectToDatabase().then(() => {
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

@@ -21,6 +21,7 @@ import {
 import FormSucessMessage from '@/components/form-success';
 import { adminLoginFormSchema } from '@/lib/form-schema';
 import { useRouter } from 'next/navigation';
+import { login } from '@/app/action/login';
 
 const Login = () => {
   const [error, setError] = useState<string | undefined>('');
@@ -47,11 +48,10 @@ const Login = () => {
   const onSubmit = (values: z.infer<typeof adminLoginFormSchema>) => {
     setError('');
     setTransition(() => {
-      console.log(values);
-      // login(values).then((data) => {
-      //   setError(data?.error);
-      //   setSucess(data?.success);
-      // });
+      login(values).then((data) => {
+        setError(data?.error);
+        setSucess(data?.success);
+      });
     });
   };
   return (
