@@ -10,7 +10,7 @@ import authRoutes from './routes/auth.routes';
 import staffRoutes from './routes/staff.routes';
 import prisma from './utils/prisma';
 
-const setupSwaggerDocs = require('./swagger/swagger');
+// const setupSwaggerDocs = require('./swagger/swagger');
 
 dotenv.config();
 
@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Configure Swagger
-setupSwaggerDocs(app);
+// setupSwaggerDocs(app);
 
 app.use(logApiPerformance);
 
