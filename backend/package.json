@@ -10,6 +10,7 @@
     "format": "prettier --write .",
     "prettier": "prettier --write --ignore-unknown .",
     "build": "tsc && copyfiles -f 'src/swagger/swagger.yaml' 'dist/'",
+    "migrate": "npx prisma migrate deploy",
     "prepare": "husky",
     "seed": "npx prisma db seed"
   },
