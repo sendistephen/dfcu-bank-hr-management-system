@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 8900;
 
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: ['*', 'http://localhost:3000', 'https://localhost:5173'],
     credentials: true,
   })
 );
@@ -49,6 +49,8 @@ app.use(errorHandler);
 const connectToDatabase = async () => {
   try {
     await prisma.$connect();
+    console.log('Database URL:', process.env.DATABASE_URL);
+
     console.log('Connected to database');
   } catch (error) {
     console.error('Failed to connect to database', error);
