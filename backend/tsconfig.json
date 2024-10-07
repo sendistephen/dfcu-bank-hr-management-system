@@ -1,16 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES2021",
-    "module": "ESNext",
+    "target": "ES2016",
+    "module": "CommonJS",
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "Node",
     "outDir": "./dist",
-    "rootDir": ".",
+    "rootDir": "src",
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@prisma/*": ["utils/*"]
-    },
+    // "paths": {
+    //   "@/*": ["src/*"],
+    //   "@prisma/*": ["utils/*"]
+    // },
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -21,6 +21,6 @@
     "transpileOnly": true,
     "esm": true
   },
-  "include": ["src/**/*.ts", "prisma/**/*.ts", "**/*.d.ts"],
+  "include": ["src/**/*.ts", "src/prisma/**/*.ts", "**/*.d.ts"],
   "exclude": ["node_modules"]
 }

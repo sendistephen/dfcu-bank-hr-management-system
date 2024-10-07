@@ -1,3 +1,4 @@
+import 'tsconfig-paths/register';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -7,13 +8,14 @@ import { logApiPerformance } from './middleware/performanceTracker';
 import adminRoutes from './routes/admin.routes';
 import authRoutes from './routes/auth.routes';
 import staffRoutes from './routes/staff.routes';
-import setupSwaggerDocs from './swagger/swagger';
 import prisma from './utils/prisma';
+
+const setupSwaggerDocs = require('./swagger/swagger');
 
 dotenv.config();
 
 const app = express();
-const PORT = 9900;
+const PORT = process.env.PORT || 8900;
 
 app.use(helmet());
 
@@ -51,12 +53,8 @@ const connectToDatabase = async () => {
   }
 };
 
-connectToDatabase();
-
 connectToDatabase().then(() => {
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
   });
 });
-
-export default app;
