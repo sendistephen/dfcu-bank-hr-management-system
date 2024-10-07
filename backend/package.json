@@ -20,6 +20,7 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^5.20.0",
+    "@types/cors": "^2.8.17",
     "@types/supertest": "^6.0.2",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
