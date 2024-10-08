@@ -1,3 +1,5 @@
+# .github/workflows/backend-ci-cd.yml
+
 name: Backend CI/CD Pipeline
 
 on:
@@ -11,13 +13,15 @@ on:
       - develop
 
 jobs:
-  backend-build-deploy:
+  ci:
+    name: Continuous Integration and Deployment
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      - name: Set Up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
@@ -25,14 +29,14 @@ jobs:
       - name: Install Dependencies
         run: yarn install
 
-      - name: Run ESLint for backend
+      - name: Run ESLint for Backend
         run: yarn workspace backend lint
 
-      - name: Build the backend
+      - name: Build the Backend
         run: yarn workspace backend build
 
-      # Push Prisma Schema and Seed Data
       - name: Push Prisma Schema and Seed Data
+        if: github.ref == 'refs/heads/main'
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
@@ -40,9 +44,9 @@ jobs:
           yarn workspace backend prisma db push
           yarn workspace backend seed
 
-      # Deploy backend to Render using the official Render Deploy Action
-      - name: Deploy Backend to Render
-        uses: render-examples/deploy-action@v1
-        with:
-          api-key: ${{ secrets.RENDER_API_KEY }}
-          service-id: ${{ secrets.RENDER_SERVICE_ID }}
+      - name: Deploy to Render
+        if: github.ref == 'refs/heads/main' && success()
+        env:
+          DEPLOY_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          curl -X POST "$DEPLOY_URL" -H "Content-Type: application/json" -d '{"trigger": "ci-cd"}'
