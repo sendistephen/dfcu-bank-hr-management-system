@@ -4,11 +4,13 @@ import { auth } from '@/auth';
 import { AuthError } from 'next-auth';
 import axios from 'axios';
 
-const BASE_URL = 'https://dfcu-bank-hr-management-system-api.onrender.com/api';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Generate Code function, calling the external API without passing a token
 export const generateCode = async () => {
   const session = await auth();
+  const accessToken = session?.accessToken;
+
   const isAuthorized = Boolean(session?.user.role === 'ADMIN');
 
   if (!isAuthorized) {
@@ -19,15 +21,17 @@ export const generateCode = async () => {
   }
 
   try {
-    // Make the API call to generate the code, ensuring cookies are included
-    const response = await axios.post(`${BASE_URL}/staff/create-code`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true,
-    });
+    const response = await axios.post(
+      `${BASE_URL}/staff/create-code`,
+      {},
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
-    // Process the response
     const result = response.data;
 
     console.log(result);
@@ -41,7 +45,7 @@ export const generateCode = async () => {
     return {
       authorized: true,
       message: 'Code generated successfully!',
-      code: result.code, // Return the generated code from the response
+      code: result.code,
     };
   } catch (error) {
     if (error instanceof AuthError) {
@@ -57,31 +61,34 @@ export const generateCode = async () => {
 // Fetch all generated codes, cookies handle authentication
 export const getAllGeneratedCodes = async () => {
   const session = await auth();
+  const accessToken = session?.accessToken;
+  const isAuthorized = Boolean(session?.user.role === 'ADMIN');
+
+  if (!isAuthorized) {
+    return {
+      authorized: false,
+      message: 'You are not authorized to view codes',
+    };
+  }
+
   try {
-    const isAuthorized = Boolean(session?.user.role === 'ADMIN');
-
-    if (!isAuthorized) {
-      return {
-        authorized: false,
-        message: 'You are not authorized to view codes',
-      };
-    }
-
-    // Fetch codes from the API, cookies will handle authentication
-    const response = await fetch(`${BASE_URL}/staff/codes`, {
-      method: 'GET',
+    const response = await axios.get(`${BASE_URL}/admin/codes`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
     });
 
-    const result = await response.json();
+    const result = response.data;
 
-    if (!response.ok) {
+    if (response.status !== 200) {
       return {
         error: true,
         message: result.message || 'Failed to fetch codes',
       };
     }
 
-    return { error: false, codes: result.codes };
+    return { error: false, codes: result };
   } catch (error) {
     throw error;
   }

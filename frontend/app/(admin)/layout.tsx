@@ -1,11 +1,11 @@
-"use server";
-import { CommandIcon, HomeIcon, Users } from "lucide-react";
+'use server';
+import { CommandIcon, HomeIcon, Users } from 'lucide-react';
 
-import Link from "next/link";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-// import { signOut } from "@/auth";
-import { Toaster } from "sonner";
+import Link from 'next/link';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { signOut } from '@/auth';
+import { Toaster } from 'sonner';
 
 export default async function Layout({
   children,
@@ -54,16 +54,16 @@ export default async function Layout({
           </ul>
         </nav>
         <div className="p-4">
-          {/* <form
+          <form
             action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/" });
+              'use server';
+              await signOut({ redirectTo: '/' });
             }}
           >
             <Button type="submit" variant="outline">
               Logout
             </Button>
-          </form> */}
+          </form>
         </div>
       </div>
 
