@@ -1,4 +1,3 @@
-// src/middleware/upload.ts
 import multer from 'multer';
 
 // Store the file in memory

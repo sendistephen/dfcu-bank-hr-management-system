@@ -1,5 +1,5 @@
 import { PrismaClient, StaffCode, Staff } from '@prisma/client';
-import { NotFoundError } from 'src/utils/customErrors';
+import { NotFoundError } from '../utils/customErrors';
 
 const prisma = new PrismaClient();
 

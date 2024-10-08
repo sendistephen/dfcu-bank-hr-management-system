@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authMiddleware } from '../middleware/adminAuth';
 import { getApiPerformance } from '../controllers/performance.controller';
-import { getAllCodes } from 'src/controllers/staff.controller';
+import { getAllCodes } from '../controllers/staff.controller';
 
 const router = Router();
 

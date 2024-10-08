@@ -1,7 +1,7 @@
 import express from 'express';
 import { AppError } from '../utils/customErrors';
 import { Login } from 'types/auth';
-import AuthService from 'src/services/authService';
+import AuthService from '../services/authService';
 
 export const login = async (req: express.Request<object, object, Login>, res: express.Response, next: express.NextFunction): Promise<void> => {
   try {
