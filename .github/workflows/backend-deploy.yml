@@ -31,12 +31,6 @@ jobs:
       - name: Build the backend
         run: yarn workspace backend build
 
-      - name: Install Render CLI
-        run: curl -fsSL https://cli.render.com/install.sh | bash
-
-      - name: Authenticate Render CLI for backend
-        run: render login --api-key ${{ secrets.RENDER_API_KEY }}
-
       # Push Prisma Schema and Seed Data
       - name: Push Prisma Schema and Seed Data
         env:
@@ -46,6 +40,9 @@ jobs:
           yarn workspace backend prisma db push
           yarn workspace backend seed
 
-      # Deploy backend to Render
+      # Deploy backend to Render using the official Render Deploy Action
       - name: Deploy Backend to Render
-        run: render deploy --service-id ${{ secrets.RENDER_SERVICE_ID }}
+        uses: render-examples/deploy-action@v1
+        with:
+          api-key: ${{ secrets.RENDER_API_KEY }}
+          service-id: ${{ secrets.RENDER_SERVICE_ID }}
