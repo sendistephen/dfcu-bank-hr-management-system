@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import { createStaffCode, getAllStaff, getStaffByEmployeeNumber, registerNewStaff, updateStaffByEmployeeNumber } from '../services/staffServices';
-import { UnauthorizedError } from '../utils/customErrors';
+import { NotFoundError, UnauthorizedError } from '../utils/customErrors';
+import StaffService from '../services/staffServices';
+import { CustomRequest } from 'types/express';
 
 /**
  * Generates a new unique staff code and returns it in the response.
- * @throws Any errors encountered while generating the code are propagated to the next middleware.
  */
 export const generateStaffCode = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const staffCode = await createStaffCode();
+    const staffCode = await StaffService.createStaffCode();
     res.status(201).json({ code: staffCode.code });
   } catch (error) {
     next(error);
@@ -16,10 +16,30 @@ export const generateStaffCode = async (req: Request, res: Response, next: NextF
 };
 
 /**
- * Registers a new staff member with the given details and unique staff code.
- * @throws {Error} if the code is invalid, expired, or has already been used
+ * Retrieves all generated staff codes.
+ * @throws {UnauthorizedError} if the user is not an admin
+ * @returns an array of all generated staff codes
  */
-export const registerStaff = async (req: Request, res: Response, next: NextFunction) => {
+export const getAllCodes = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    // Ensure the user is an admin
+    if (req.userRole !== 'ADMIN') {
+      throw new UnauthorizedError('You are not authorized to access this resource');
+    }
+
+    // Get all generated codes
+    const codes = await StaffService.getAllGeneratedCodes();
+
+    res.status(200).json(codes);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Registers a new staff member with the given details and unique staff code.
+ */
+export const registerStaff = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { surname, otherNames, dateOfBirth, code } = req.body;
 
@@ -28,8 +48,7 @@ export const registerStaff = async (req: Request, res: Response, next: NextFunct
       photoId = req.file.buffer.toString('base64');
     }
 
-    // Call the service to register the new staff and get the generated employee number
-    const newStaff = await registerNewStaff({
+    const newStaff = await StaffService.registerNewStaff({
       surname,
       otherNames,
       dateOfBirth,
@@ -48,34 +67,27 @@ export const registerStaff = async (req: Request, res: Response, next: NextFunct
 
 /**
  * Retrieves a single staff member by their employee number, or all staff if no employee number is provided.
- * Only accessible by admins or the owner of the staff member.
- * @throws {UnauthorizedError} If the user is not authorized to access this resource
- * @throws {NotFoundError} If the staff member is not found
- * @returns a single staff member or a list of all staff
  */
-export const getStaff = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getStaff = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { employeeNumber } = req.query;
 
-    if (!employeeNumber || employeeNumber === 'undefined') {
-      const staffList = await getAllStaff();
+    // Ensure employeeNumber is a string
+    if (!employeeNumber || typeof employeeNumber !== 'string') {
+      const staffList = await StaffService.getAllStaff();
       res.status(200).json(staffList);
       return;
     }
 
-    const userRole = req.userRole;
-    if (userRole !== 'ADMIN' && req.userId !== employeeNumber) {
+    // Compare req.userId (number) with employeeNumber (string)
+    if (req.userRole !== 'ADMIN' && String(req.userId) !== employeeNumber) {
       throw new UnauthorizedError('You are not authorized to access this resource');
     }
 
-    const staff = await getStaffByEmployeeNumber(employeeNumber as string);
+    const staff = await StaffService.getStaffByEmployeeNumber(employeeNumber);
     if (!staff) {
-      console.log(`Staff member with employee number ${employeeNumber} not found.`);
-      res.status(404).json({ message: 'Staff member not found' });
-      return;
+      throw new NotFoundError('Staff member not found');
     }
-
-    // Success: staff member found, send staff data
     res.status(200).json(staff);
     return;
   } catch (error) {
@@ -85,38 +97,28 @@ export const getStaff = async (req: Request, res: Response, next: NextFunction):
 
 /**
  * Updates a single staff member by their employee number.
- * Only accessible by admins or the owner of the staff member.
- * @throws {UnauthorizedError} If the user is not authorized to access this resource
- * @throws {NotFoundError} If the staff member is not found
- * @returns the updated staff member
  */
-export const updateStaff = async (req: Request, res: Response, next: NextFunction) => {
+export const updateStaff = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { employeeNumber } = req.params;
     const { dateOfBirth, photoId } = req.body;
 
-    // Check authorization: only admin or the owner can update
-    const userRole = req.userRole;
-    if (userRole !== 'ADMIN' && req.userId !== employeeNumber) {
+    // Compare req.userId (number) with employeeNumber (string), convert types accordingly
+    if (req.userRole !== 'ADMIN' && String(req.userId) !== employeeNumber) {
       throw new UnauthorizedError('You are not authorized to update this staff member');
     }
 
-    let updatedPhotoId: string | undefined = undefined;
-    if (req.file) {
-      updatedPhotoId = req.file.buffer.toString('base64');
-    }
-
-    // Update the staff member's details
-    const updatedStaff = await updateStaffByEmployeeNumber(employeeNumber, {
+    const updatedStaff = await StaffService.updateStaffByEmployeeNumber(employeeNumber, {
       dateOfBirth,
-      photoId: updatedPhotoId ?? photoId,
+      photoId,
     });
 
     if (!updatedStaff) {
       res.status(404).json({ message: 'Staff member not found' });
+      return;
     }
-
     res.status(200).json({ message: 'Staff updated successfully', staff: updatedStaff });
+    return;
   } catch (error) {
     next(error);
   }

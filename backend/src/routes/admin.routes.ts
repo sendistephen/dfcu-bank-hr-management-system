@@ -1,10 +1,12 @@
 import { Router } from 'express';
-import { adminAuth } from '../middleware/adminAuth';
+import { authMiddleware } from '../middleware/adminAuth';
 import { getApiPerformance } from '../controllers/performance.controller';
+import { getAllCodes } from 'src/controllers/staff.controller';
 
 const router = Router();
 
 // Route for admins to view API performance metrics
-router.get('/performance', adminAuth, getApiPerformance);
+router.get('/performance', authMiddleware, getApiPerformance);
+router.get('/codes', authMiddleware, getAllCodes);
 
 export default router;

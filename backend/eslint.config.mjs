@@ -20,12 +20,15 @@ export default [
     files: ['**/*.ts'],
     plugins: {
       '@typescript-eslint': tsPlugin,
-      jest: tsPlugin,
+      prettier: prettierPlugin,
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
       'prettier/prettier': 'error',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-require-imports': 'off',
     },
+    ignores: ['!node_modules/', 'node_modules/*', 'dist/*', 'dist/**/*', 'dist/**/node_modules/**'],
   },
   {
     plugins: {
