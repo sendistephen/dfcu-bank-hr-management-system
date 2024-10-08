@@ -31,12 +31,16 @@ jobs:
       - name: Build the backend
         run: yarn workspace backend build
 
-      - name: Install Render CLI for backend
+      - name: Install Render CLI
         run: curl -fsSL https://cli.render.com/install.sh | bash
+
+      - name: Add Render CLI to PATH
+        run: echo "$HOME/.render/bin" >> $GITHUB_PATH
 
       - name: Authenticate Render CLI for backend
         run: render login --api-key ${{ secrets.RENDER_API_KEY }}
 
+      # Push Prisma Schema and Seed Data
       - name: Push Prisma Schema and Seed Data
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -45,6 +49,6 @@ jobs:
           yarn workspace backend prisma db push
           yarn workspace backend seed
 
-      # Step 9: Deploy backend to Render
+      #  Deploy backend to Render
       - name: Deploy Backend to Render
         run: render deploy --service-id ${{ secrets.RENDER_SERVICE_ID }}
