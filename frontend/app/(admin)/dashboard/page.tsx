@@ -1,23 +1,30 @@
-// import { auth } from '@/auth';
+import { getPerformanceData } from '@/app/action/get-api-performance';
 import { auth } from '@/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3, PieChart } from 'lucide-react';
 
-const apiPerformanceData = {
-  totalRequests: 199,
-  successfulRequests: 149,
-  failedRequests: 50,
-};
-
 const Dashboard = async () => {
-  const successRate =
-    (apiPerformanceData.successfulRequests / apiPerformanceData.totalRequests) *
-    100;
   const session = await auth();
 
+  const performances = (await getPerformanceData()) as PerformanceData;
+
+  const totalRequests = performances.totalRequests;
+
+  const successfulRequests = performances.performanceLogs.filter(
+    (log) => log.success
+  ).length;
+
+  const failedRequests = performances.failedRequests;
+
+  const successRate = (successfulRequests / totalRequests) * 100;
+
   return (
-    <div>
-      <h2 className="text-sm font-bold mb-4">Welcome {session?.user?.email}</h2>
+    <div className="flex flex-col gap-4">
+      <div>
+        <h2 className="text-sm font-bold">Welcome {session?.user?.email}</h2>
+        <small>You are logged in as {session?.user?.role}</small>
+      </div>
+
       <div>
         <div className="space-y-4 h-full">
           <Card>
@@ -34,9 +41,7 @@ const Dashboard = async () => {
                     <BarChart3 className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">
-                      {apiPerformanceData.totalRequests}
-                    </div>
+                    <div className="text-2xl font-bold">{totalRequests}</div>
                   </CardContent>
                 </Card>
                 <Card>
@@ -48,7 +53,7 @@ const Dashboard = async () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      {apiPerformanceData.successfulRequests}
+                      {successfulRequests}
                     </div>
                   </CardContent>
                 </Card>
@@ -60,9 +65,7 @@ const Dashboard = async () => {
                     <BarChart3 className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">
-                      {apiPerformanceData.failedRequests}
-                    </div>
+                    <div className="text-2xl font-bold">{failedRequests}</div>
                   </CardContent>
                 </Card>
                 <Card>

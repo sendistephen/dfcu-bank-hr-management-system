@@ -1,7 +1,8 @@
 'use client';
-import { Search } from 'lucide-react';
-import { useState } from 'react';
-// import { Button } from '@/components/ui/button';
+
+import { Search, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import moment from 'moment';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
@@ -12,25 +13,46 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import axios from 'axios';
+import { useSession } from 'next-auth/react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const Employees = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const employees = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', department: 'IT' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', department: 'HR' },
-    {
-      id: 3,
-      name: 'Bob Johnson',
-      email: 'bob@example.com',
-      department: 'Finance',
-    },
-  ];
-  const filteredEmployees = employees.filter(
-    (employee) =>
-      employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      employee.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      employee.department.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      setLoading(true);
+      setError('');
+
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/staff`,
+          {
+            params: searchQuery ? { employeeNumber: searchQuery } : {},
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        setEmployees(Array.isArray(res.data) ? res.data : [res.data]);
+      } catch (err) {
+        setError('Failed to fetch employees. Please try again.');
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmployees();
+  }, [accessToken, searchQuery]);
 
   return (
     <div>
@@ -49,24 +71,49 @@ const Employees = () => {
             />
             <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Department</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredEmployees.map((employee) => (
-                <TableRow key={employee.id}>
-                  <TableCell>{employee.name}</TableCell>
-                  <TableCell>{employee.email}</TableCell>
-                  <TableCell>{employee.department}</TableCell>
+
+          {loading ? (
+            <div className="flex justify-center items-center my-10">
+              <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+            </div>
+          ) : error ? (
+            <p>{error}</p>
+          ) : employees.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Photo</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Employee Number</TableHead>
+                  <TableHead>Date of Birth</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {employees.map((employee: Employee) => (
+                  <TableRow key={employee.id}>
+                    <TableCell>
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage
+                          src={employee.photoId as string}
+                          alt={employee.surname.charAt(0).toUpperCase()}
+                        />
+                        <AvatarFallback>{employee.surname}</AvatarFallback>
+                      </Avatar>
+                    </TableCell>
+                    <TableCell>
+                      {employee.surname} {employee.otherNames}
+                    </TableCell>
+                    <TableCell>{employee.employeeNumber}</TableCell>
+                    <TableCell>
+                      {moment(employee.dateOfBirth).format('YYYY-MMMM-DD')}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <p>No employees found.</p>
+          )}
         </CardContent>
       </Card>
     </div>

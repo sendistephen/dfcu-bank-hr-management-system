@@ -12,7 +12,7 @@ class AuthService {
   // Generate access token
   private static generateAccessToken(userId: string | number, userRole: string) {
     return jwt.sign({ id: userId, role: userRole }, process.env.JWT_ACCESS_TOKEN_SECRET as string, {
-      expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRY || '15m',
+      expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRY || '15d',
     });
   }
 
