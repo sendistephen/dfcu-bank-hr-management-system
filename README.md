@@ -16,6 +16,7 @@ Both the frontend and backend are configured with continuous integration and dep
 (API)  
 https://dfcu-bank-hr-management-system-api.onrender.com/api
 
+(Frontend) https://dfcu-bank-hr-management-system.vercel.app/
 ## How to run
 
 To run this project on your local machine, ensure the following prerequisites are installed:

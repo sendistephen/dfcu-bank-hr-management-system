@@ -18,7 +18,6 @@ interface CodeListingProps {
 }
 
 const CodeListing = ({ codes }: CodeListingProps) => {
-  console.log(codes);
   return (
     <div className="mt-10 overflow-auto">
       <h2 className="text-lg font-bold mb-4">Generated Codes</h2>

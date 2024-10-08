@@ -30,6 +30,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 import axios, { AxiosError } from 'axios';
+import SuccessModal from '@/components/success-modal';
 
 type FormValues = z.infer<typeof registerNewStaffFormSchema>;
 
@@ -38,12 +39,7 @@ const MAX_FILE_SIZE = 1 * 1024 * 1024;
 const RegisterNewStaff = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [successData, setSuccessData] = useState<{
-    employeeNumber: string;
-    surname: string;
-    otherNames: string;
-    dateOfBirth: string;
-  } | null>(null);
+  const [successData, setSuccessData] = useState<RegisterSuccess | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -80,7 +76,6 @@ const RegisterNewStaff = () => {
     };
 
     try {
-      // Send the payload to the API route
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/staff/register`,
         payload,
@@ -93,10 +88,9 @@ const RegisterNewStaff = () => {
 
       const data = response.data;
 
-      console.log('SUCESS++++++++++++++++', response.data);
       if (data.success) {
         setSuccessData(data.message);
-
+        toast.success(data.message);
         form.reset();
         handleRemoveImage();
       } else {
@@ -111,7 +105,6 @@ const RegisterNewStaff = () => {
       setIsLoading(false);
     }
   };
-  console.log(successData);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -138,6 +131,11 @@ const RegisterNewStaff = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  const handleModalClose = () => {
+    setSuccessData(null);
+    router.push('');
   };
 
   return (
@@ -337,6 +335,11 @@ const RegisterNewStaff = () => {
           </Form>
         </div>
       </div>
+
+      {/* show modal on sucessfull creation */}
+      {successData && successData.success && (
+        <SuccessModal data={successData} onClose={handleModalClose} />
+      )}
     </div>
   );
 };

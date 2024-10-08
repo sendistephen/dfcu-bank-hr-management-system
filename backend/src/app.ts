@@ -1,5 +1,5 @@
 import 'tsconfig-paths/register';
-import cors from 'cors'; // Import cors
+import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 8900;
 
 app.use(
   cors({
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:3000', 'https://dfcu-bank-hr-management-system.vercel.app/'],
     credentials: true,
   })
 );
