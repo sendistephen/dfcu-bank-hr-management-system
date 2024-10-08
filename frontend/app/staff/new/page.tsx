@@ -1,4 +1,6 @@
 'use client';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import {
   Form,
   FormControl,
@@ -8,30 +10,40 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useRef, useState } from 'react';
-import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
-import { Calendar } from '@/components/ui/calendar';
-import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { registerNewStaffFormSchema } from '@/lib/form-schema';
 import { cn } from '@/lib/utils';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { format } from 'date-fns';
 import { CalendarIcon, Loader2, Plus, X } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { registerNewStaffFormSchema } from '@/lib/form-schema';
+import { useRouter } from 'next/navigation';
+import { useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import * as z from 'zod';
+import axios from 'axios';
 
 type FormValues = z.infer<typeof registerNewStaffFormSchema>;
 
+const MAX_FILE_SIZE = 1 * 1024 * 1024;
+
 const RegisterNewStaff = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successData, setSuccessData] = useState<{
+    employeeNumber: string;
+    surname: string;
+    otherNames: string;
+    dateOfBirth: string;
+  } | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,38 +62,70 @@ const RegisterNewStaff = () => {
    * Submits the registration form and creates a new staff member.
    * @param values - The form values
    */
-  async function onSubmit(values: FormValues) {
+  const onSubmit = async (values: FormValues) => {
+    setError(null);
     setIsLoading(true);
+    setSuccessData(null);
 
-    const formData = {
+    // Convert dateOfBirth to ISO string (YYYY-MM-DD)
+    const dateOfBirthISO = values.dateOfBirth.toISOString().split('T')[0];
+
+    // Prepare the payload
+    const payload = {
       surname: values.surname,
       otherNames: values.otherNames,
-      dateOfBirth: values.dateOfBirth.toISOString().split('T')[0],
-      idPhoto: previewUrl || '',
-      uniqueCode: values.uniqueCode,
+      dateOfBirth: dateOfBirthISO,
+      code: values.uniqueCode,
+      photoId: previewUrl ?? null,
     };
-    console.log(formData);
-    try {
-      // Todo: Implement the registration logic
-    } catch (error) {
-      setIsLoading(false);
 
-      toast('Registration failed. Please try again later.');
-      console.error(error);
+    try {
+      // Send the payload to the API route
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/staff/register`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      const data = response.data;
+
+      console.log(response.data);
+      if (data.success) {
+        setSuccessData(data.message);
+
+        form.reset();
+        handleRemoveImage();
+      } else {
+        setError(data.error);
+        toast.error(data.error);
+      }
+    } catch (err) {
+      toast.error('An error occurred. Please try again.');
+      console.error('Registration error:', err);
+    } finally {
+      setIsLoading(false);
     }
-  }
-  /**
-   * Handles changes to the file input element. If a file is selected, it
-   * will be read and the base64 encoded data URL will be set as the
-   * `previewUrl` state.
-   * @param event - The React `ChangeEvent` object
-   */
+  };
+  console.log(successData);
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      if (file.size > MAX_FILE_SIZE) {
+        setError('Photo must not exceed 1MB.');
+        setPreviewUrl(null);
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
+        const result = reader.result as string;
+        setPreviewUrl(result);
+        setError(null);
       };
       reader.readAsDataURL(file);
     }
@@ -93,6 +137,7 @@ const RegisterNewStaff = () => {
    */
   const handleRemoveImage = () => {
     setPreviewUrl(null);
+    setError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -259,6 +304,14 @@ const RegisterNewStaff = () => {
                   </FormItem>
                 )}
               />
+
+              {error && (
+                <Label className="text-rose-500 text-xs flex items-center gap-1">
+                  <ExclamationTriangleIcon className="w-4 h-4" />
+                  <span>{error}</span>
+                </Label>
+              )}
+
               <div className="flex justify-end items-center gap-4">
                 <Button
                   type="button"
