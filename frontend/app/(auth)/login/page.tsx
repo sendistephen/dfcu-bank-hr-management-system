@@ -3,7 +3,7 @@ import { useState, useTransition } from 'react';
 
 import * as z from 'zod';
 import { useForm } from 'react-hook-form';
-import { Loader2, LockIcon, UserIcon } from 'lucide-react';
+import { ArrowLeft, Loader2, LockIcon, UserIcon } from 'lucide-react';
 
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
@@ -62,7 +62,7 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-full max-w-md mx-auto flex flex-col justify-center p-6 bg-white rounded gab-4">
         <div className="flex flex-col gap-4">
-          <div className="flex justify-center items-center">
+          <div className="flex justify-start items-center">
             <Image
               src="/logo.png"
               alt="dfcu logo"
@@ -72,7 +72,7 @@ const Login = () => {
             />
           </div>
           <div className="flex flex-col gap-4 mt-3">
-            <div className="flex flex-col justify-center items-center">
+            <div className="flex flex-col justify-start items-start">
               <h2 className="text-sm font-bold">Admin Login</h2>
               <small>Welcome back!</small>
             </div>
@@ -141,7 +141,8 @@ const Login = () => {
             </Form>
           </div>
         </div>
-        <Button onClick={() => router.back()} variant="link">
+        <Button onClick={() => router.back()} variant="link" className="group">
+          <ArrowLeft className="w-8 h-4 transition duration-300 ease-in-out group-hover:translate-x-1" />{' '}
           Back to home
         </Button>
       </div>
