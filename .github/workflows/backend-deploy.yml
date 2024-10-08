@@ -31,11 +31,15 @@ jobs:
       - name: Build the backend
         run: yarn workspace backend build
 
-      - name: Install Render CLI
-        run: curl -fsSL https://cli.render.com/install.sh | bash
+      - name: Install Render CLI and Add to PATH
+        run: |
+          curl -fsSL https://cli.render.com/install.sh | bash
+          echo "PATH=$HOME/.render/bin:\$PATH" >> \$GITHUB_ENV
 
-      - name: Add Render CLI to PATH
-        run: echo "$HOME/.render/bin" >> $GITHUB_PATH
+      - name: Verify Render CLI Installation
+        run: |
+          which render
+          render --version
 
       - name: Authenticate Render CLI for backend
         run: render login --api-key ${{ secrets.RENDER_API_KEY }}
@@ -49,6 +53,6 @@ jobs:
           yarn workspace backend prisma db push
           yarn workspace backend seed
 
-      #  Deploy backend to Render
+      # Deploy backend to Render
       - name: Deploy Backend to Render
         run: render deploy --service-id ${{ secrets.RENDER_SERVICE_ID }}
