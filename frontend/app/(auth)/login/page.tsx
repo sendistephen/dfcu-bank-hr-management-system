@@ -51,6 +51,10 @@ const Login = () => {
       login(values).then((data) => {
         setError(data?.error);
         setSucess(data?.success);
+
+        if (data?.success) {
+          router.push('/dashboard');
+        }
       });
     });
   };

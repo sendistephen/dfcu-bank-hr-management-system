@@ -1,8 +1,23 @@
+import { getRemainingTime } from '@/lib/utils';
+import moment from 'moment';
+
 interface CodeListingProps {
-  codes: any[];
+  codes: {
+    code: string;
+    createdAt: string;
+    isUsed: boolean;
+    employee: {
+      id: string;
+      employeeNumber: string;
+      surname: string;
+      otherNames: string;
+    };
+    expiresAt: string;
+  }[];
 }
 
 const CodeListing = ({ codes }: CodeListingProps) => {
+  console.log(codes);
   return (
     <div className="mt-10 overflow-auto">
       <h2 className="text-lg font-bold mb-4">Generated Codes</h2>
@@ -38,18 +53,18 @@ const CodeListing = ({ codes }: CodeListingProps) => {
             </tr>
           ) : (
             codes.map((code) => (
-              <tr key={code.id} className="border-b hover:bg-gray-50 text-sm">
+              <tr key={code.code} className="border-b hover:bg-gray-50 text-sm">
                 <td className="py-1 px-2 font-semibold text-gray-700">
                   {code.code}
                 </td>
                 <td className="py-1 px-2 text-gray-500">
-                  {new Date(code.createdAt).toLocaleString()}
+                  {moment(code.createdAt).format('MMMM Do YYYY, h:mm:ss a')}
                 </td>
                 <td className="py-1 px-2 text-gray-500">
                   {code.isUsed ? 'Yes' : 'No'}
                 </td>
                 <td className="py-1 px-2 text-gray-500">
-                  {code.employee ? code.employee.surname : 'N/A'}
+                  {code.employee ? code.employee!.surname : 'N/A'}
                 </td>
                 <td className="py-1 px-2 text-gray-500">
                   {(() => {

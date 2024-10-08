@@ -1,32 +1,42 @@
-// src/middleware.ts
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/lucia';
-import { cookies } from 'next/headers'; // For accessing cookies in Next.js
+import NextAuth from 'next-auth';
 
-export async function middleware(req) {
-  const sessionCookie = req.cookies.get('session'); // Get the session cookie
+import authConfig from '@/auth.config';
+import {
+  apiAuthPrefix,
+  authRoutes,
+  DEFAULT_LOGIN_REDIRECT,
+  publicRoutes,
+} from '@/routes';
 
-  // If no session cookie is found, redirect to the login page
-  if (!sessionCookie) {
-    return NextResponse.redirect(new URL('/login', req.url));
-  }
+const { auth } = NextAuth(authConfig);
 
-  // Validate the session using Lucia's `validateSession` method
-  try {
-    const session = await auth.validateSession(sessionCookie);
-    if (!session) {
-      return NextResponse.redirect(new URL('/login', req.url)); // Invalid session, redirect to login
+export default auth((req) => {
+  const { nextUrl } = req;
+  const isLoggedIn = !!req.auth;
+
+  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
+  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
+  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+
+  // nothing to do
+  if (isApiAuthRoute) return;
+
+  // If accessing auth routes like login and user is already logged in, redirect to admin dashboard
+  if (isAuthRoute) {
+    if (isLoggedIn) {
+      return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, req.url));
     }
-
-    // Proceed with the request if the session is valid
-    return NextResponse.next();
-  } catch (error) {
-    console.error('Session validation failed:', error);
-    return NextResponse.redirect(new URL('/login', req.url)); // On error, redirect to login
+    return;
   }
-}
 
-// Apply the middleware to routes that need protection
+  // If the user is not logged in and trying to access non-public routes, redirect to login
+  if (!isLoggedIn && !isPublicRoute) {
+    return Response.redirect(new URL('/login', req.url));
+  }
+
+  return;
+});
+
 export const config = {
-  matcher: ['/dashboard', '/protected-page'], // Adjust the protected routes
+  matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
 };

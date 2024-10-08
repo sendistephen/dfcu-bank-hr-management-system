@@ -1,19 +1,15 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import CodeListing from '@/components/code-listing';
-import { generateCode } from '@/app/action/generate-code';
+import { generateCode, getAllGeneratedCodes } from '@/app/action/generate-code';
 
 const GenerateCode = () => {
   const [codes, setCodes] = useState([]);
-
-  const { data: session } = useSession();
-
 
   const [loading, setLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -35,16 +31,16 @@ const GenerateCode = () => {
     });
   };
 
-  // useEffect(() => {
-  //   getAllGeneratedCodes().then((data) => {
-  //     if (data.error) {
-  //       toast.error(data.message);
-  //     } else {
-  //       setCodes(data.codes ?? []);
-  //     }
-  //     setLoading(false);
-  //   });
-  // }, [shouldRefetch]);
+  useEffect(() => {
+    getAllGeneratedCodes().then((data) => {
+      if (data.error) {
+        toast.error(data.message);
+      } else {
+        setCodes(data.codes ?? []);
+      }
+      setLoading(false);
+    });
+  }, [shouldRefetch]);
 
   return (
     <div>
