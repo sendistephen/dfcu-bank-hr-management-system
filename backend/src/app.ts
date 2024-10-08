@@ -18,8 +18,7 @@ const PORT = process.env.PORT || 8900;
 
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'https://dfcu-bank-hr-management-system.vercel.app/'],
-    credentials: true,
+    origin: ['http://localhost:3000', 'https://dfcu-bank-hr-management-system.vercel.app'],
   })
 );
 
