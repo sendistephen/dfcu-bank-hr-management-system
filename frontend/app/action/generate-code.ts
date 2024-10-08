@@ -1,8 +1,7 @@
 'use server';
 
 import { auth } from '@/auth';
-import { AuthError } from 'next-auth';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -48,7 +47,7 @@ export const generateCode = async () => {
       code: result.code,
     };
   } catch (error) {
-    if (error instanceof AuthError) {
+    if (error instanceof AxiosError) {
       return {
         authorized: false,
         message: error.message,

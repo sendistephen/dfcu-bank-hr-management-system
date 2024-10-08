@@ -4,12 +4,14 @@
   "private": true,
   "scripts": {
     "start": "yarn workspace backend start",
-    "build": "yarn workspace backend build",
+    "build": "yarn workspace backend build && yarn workspace frontend build",
     "seed": "yarn workspace backend seed",
-    "dev": "yarn workspace backend dev"
+    "dev": "yarn workspace backend dev && yarn workspace frontend dev",
+    "lint": "yarn workspace backend lint && yarn workspace frontend lint"
   },
   "workspaces": [
-    "backend"
+    "backend",
+    "frontend"
   ],
   "devDependencies": {
     "husky": "^9.1.6",

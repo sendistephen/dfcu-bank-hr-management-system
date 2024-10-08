@@ -1,0 +1,35 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: yarn workspace frontend install
+
+      - name: Lint code
+        run: yarn workspace frontend lint
+
+      - name: Build frontend
+        run: yarn workspace frontend build
+
+      - name: Deploy to Vercel
+        run: npx vercel --token ${{ secrets.VERCEL_TOKEN }} --prod
+        working-directory: frontend
