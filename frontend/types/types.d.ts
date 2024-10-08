@@ -26,3 +26,9 @@ interface Employee {
   createdAt: string;
   updatedAt: string;
 }
+
+interface RegisterSuccess {
+  message: string;
+  success: boolean;
+  employeeNumber: string;
+}
