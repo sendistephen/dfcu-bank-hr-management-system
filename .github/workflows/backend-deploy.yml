@@ -14,37 +14,29 @@ jobs:
   backend-build-deploy:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Set up Node.js for the project
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
 
-      # Step 3: Install dependencies at the root level
       - name: Install Dependencies
         run: yarn install
 
-      # Step 4: Run ESLint for backend (optional linting step)
       - name: Run ESLint for backend
         run: yarn workspace backend lint
 
-      # Step 5: Build the backend app using workspace command
       - name: Build the backend
         run: yarn workspace backend build
 
-      # Step 6: Install Render CLI for deployment
       - name: Install Render CLI for backend
         run: curl -fsSL https://cli.render.com/install.sh | bash
 
-      # Step 7: Authenticate Render CLI
       - name: Authenticate Render CLI for backend
         run: render login --api-key ${{ secrets.RENDER_API_KEY }}
 
-      # Step 8: Push Prisma Schema and Seed Database using workspace commands
       - name: Push Prisma Schema and Seed Data
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
