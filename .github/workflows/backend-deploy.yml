@@ -31,13 +31,9 @@ jobs:
       - name: Build the backend
         run: yarn workspace backend build
 
-      - name: Install Render CLI to /usr/local/bin
-        run: |
-          curl -fsSL https://cli.render.com/install.sh | bash
-          sudo mv $HOME/.render/bin/render /usr/local/bin/
-          # Verify installation
-          which render
-          render --version
+      - name: Install Render CLI
+        run: curl -fsSL https://cli.render.com/install.sh | bash
+
 
       - name: Authenticate Render CLI for backend
         run: render login --api-key ${{ secrets.RENDER_API_KEY }}
