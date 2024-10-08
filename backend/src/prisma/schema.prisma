@@ -5,8 +5,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  // comment next line if you are not using NEON DB prisma 
-  directUrl = env("DATABASE_URL_UNPOOLED")
+  directUrl = env("DIRECT_DATABASE_URL")
 }
 
 enum Role {

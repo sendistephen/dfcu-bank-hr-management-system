@@ -57,8 +57,8 @@ export const registerStaff = async (req: Request, res: Response, next: NextFunct
     });
 
     res.status(201).json({
-      message: 'Staff registered successfully',
-      employeeNumber: newStaff.employeeNumber,
+      message: `Dear ${surname}, your employeee number is ${newStaff.employeeNumber}.`,
+      success: true,
     });
   } catch (error) {
     next(error);
