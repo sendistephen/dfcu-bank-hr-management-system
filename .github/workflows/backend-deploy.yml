@@ -15,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -31,13 +31,11 @@ jobs:
       - name: Build the backend
         run: yarn workspace backend build
 
-      - name: Install Render CLI and Add to PATH
+      - name: Install Render CLI to /usr/local/bin
         run: |
           curl -fsSL https://cli.render.com/install.sh | bash
-          echo "PATH=$HOME/.render/bin:\$PATH" >> \$GITHUB_ENV
-
-      - name: Verify Render CLI Installation
-        run: |
+          sudo mv $HOME/.render/bin/render /usr/local/bin/
+          # Verify installation
           which render
           render --version
 
