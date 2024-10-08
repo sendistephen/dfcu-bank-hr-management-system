@@ -57,7 +57,8 @@ const Employees = () => {
 
           {loading ? (
             <div className="flex justify-center items-center my-10">
-              <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+              <Loader2 className="h-4 w-4 animate-spin text-gray-500" />{' '}
+              <span className="text-neutral-500 text-xs">Loading...</span>
             </div>
           ) : error ? (
             <p className="text-rose-600 leading-loose">{error}</p>
