@@ -19,7 +19,7 @@ interface CustomError extends Error {
  *
  * @see https://expressjs.com/en/guide/error-handling.html
  */
-const errorHandler = (err: CustomError, req: express.Request, res: express.Response, next: express.NextFunction): void => {
+const errorHandler = (err: CustomError, req: express.Request, res: express.Response, _next: express.NextFunction): void => {
   if (process.env.NODE_ENV === 'development') {
     console.error('Error stack: ', err.stack);
   }

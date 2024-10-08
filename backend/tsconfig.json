@@ -7,10 +7,7 @@
     "outDir": "./dist",
     "rootDir": "src",
     "baseUrl": ".",
-    // "paths": {
-    //   "@/*": ["src/*"],
-    //   "@prisma/*": ["utils/*"]
-    // },
+
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -22,5 +19,5 @@
     "esm": true
   },
   "include": ["src/**/*.ts", "src/prisma/**/*.ts", "**/*.d.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist/"]
 }

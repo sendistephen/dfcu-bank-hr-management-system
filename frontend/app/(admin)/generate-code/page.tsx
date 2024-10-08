@@ -1,22 +1,50 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-
+import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import CodeListing from '@/components/code-listing';
+import { generateCode } from '@/app/action/generate-code';
 
 const GenerateCode = () => {
-  const [codes, setCodes] = useState<any>([]);
+  const [codes, setCodes] = useState([]);
 
-  const [loading, setLoading] = useState(true);
+  const { data: session } = useSession();
+
+
+  const [loading, setLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [shouldRefetch, setShouldRefetch] = useState(false);
 
   const handleGenerateCode = () => {
-    startTransition(() => {});
+    startTransition(() => {
+      generateCode().then((data) => {
+        if (data.authorized === false) {
+          toast('Authorization failed! ', {
+            description: data.message,
+          });
+        }
+        toast('Sucess! ', {
+          description: data.message,
+        });
+        setShouldRefetch((prev) => !prev);
+      });
+    });
   };
+
+  // useEffect(() => {
+  //   getAllGeneratedCodes().then((data) => {
+  //     if (data.error) {
+  //       toast.error(data.message);
+  //     } else {
+  //       setCodes(data.codes ?? []);
+  //     }
+  //     setLoading(false);
+  //   });
+  // }, [shouldRefetch]);
 
   return (
     <div>

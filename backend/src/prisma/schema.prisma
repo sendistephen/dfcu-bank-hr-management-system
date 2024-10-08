@@ -3,24 +3,16 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // comment next line if you are not using NEON DB prisma 
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 enum Role {
   ADMIN
   // USER
   // SUPERADMIN
-}
-
-model Admin {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
-  password     String
-  role         Role     @default(ADMIN)
-  refreshToken String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
 }
 
 model User {

@@ -1,4 +1,5 @@
-// Extend the Request interface to include the file property
+import express from 'express';
+
 declare global {
   namespace Express {
     interface Request {
@@ -6,4 +7,9 @@ declare global {
       files?: Express.Multer.File[];
     }
   }
+}
+
+export interface CustomRequest extends express.Request {
+  userId?: number;
+  userRole?: string;
 }

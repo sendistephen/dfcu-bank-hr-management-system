@@ -14,10 +14,10 @@ const Dashboard = async () => {
     (apiPerformanceData.successfulRequests / apiPerformanceData.totalRequests) *
     100;
   const session = await auth();
-  console.log(session);
+
   return (
     <div>
-      <h2 className="text-sm font-bold">Welcome {session?.user?.name}</h2>
+      <h2 className="text-sm font-bold mb-4">Welcome {session?.user?.email}</h2>
       <div>
         <div className="space-y-4 h-full">
           <Card>

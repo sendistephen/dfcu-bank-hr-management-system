@@ -1,12 +1,11 @@
-import express from 'express';
 import jwt from 'jsonwebtoken';
 import { UnauthorizedError } from '../utils/customErrors';
+import express from 'express';
+import { CustomRequest } from 'types/express';
 
-declare module 'express' {
-  export interface Request {
-    userId?: string;
-    userRole?: string;
-  }
+interface JwtPayloadCustom extends jwt.JwtPayload {
+  id: number;
+  role: string;
 }
 
 /**
@@ -14,26 +13,26 @@ declare module 'express' {
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-export const verifyToken = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+
+export const verifyToken = (req: CustomRequest, res: express.Response, next: express.NextFunction) => {
   try {
-    // Get user token from the cookie
-    const token = req.cookies.accessToken;
+    const authHeader = req.get('authorization');
 
-    if (!token) throw new UnauthorizedError('You are not authorized to access this resource');
-
-    // verify and decode the token
-    const payload = jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET as string) as jwt.JwtPayload & {
-      id: string;
-      role: string;
-    };
-
-    if (!payload || typeof payload !== 'object' || !payload.id || !payload.role) {
-      throw new UnauthorizedError('Invalid token or token payload');
+    if (!authHeader || Array.isArray(authHeader)) {
+      throw new UnauthorizedError('Authorization header not provided');
     }
 
-    // Set the user in the request object
-    req.userId = payload.id;
-    req.userRole = payload.role;
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      throw new UnauthorizedError('Bearer token not provided');
+    }
+
+    // Verify and decode the token
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET as string) as JwtPayloadCustom;
+
+    // Attach user info to the request object
+    req.userId = decoded.id;
+    req.userRole = decoded.role;
 
     next();
   } catch (error) {

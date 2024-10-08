@@ -50,9 +50,22 @@ CREATE TABLE "StaffCode" (
     "expiresAt" TIMESTAMP(3) NOT NULL,
     "usedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "staffId" INTEGER NOT NULL,
+    "staffId" INTEGER,
 
     CONSTRAINT "StaffCode_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ApiPerformance" (
+    "id" SERIAL NOT NULL,
+    "endpoint" TEXT NOT NULL,
+    "method" TEXT NOT NULL,
+    "success" BOOLEAN NOT NULL,
+    "statusCode" INTEGER NOT NULL,
+    "responseTime" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ApiPerformance_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -74,4 +87,4 @@ CREATE UNIQUE INDEX "StaffCode_code_key" ON "StaffCode"("code");
 CREATE UNIQUE INDEX "StaffCode_staffId_key" ON "StaffCode"("staffId");
 
 -- AddForeignKey
-ALTER TABLE "StaffCode" ADD CONSTRAINT "StaffCode_staffId_fkey" FOREIGN KEY ("staffId") REFERENCES "Staff"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "StaffCode" ADD CONSTRAINT "StaffCode_staffId_fkey" FOREIGN KEY ("staffId") REFERENCES "Staff"("id") ON DELETE SET NULL ON UPDATE CASCADE;
