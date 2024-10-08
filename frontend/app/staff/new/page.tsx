@@ -89,8 +89,10 @@ const RegisterNewStaff = () => {
       const data = response.data;
 
       if (data.success) {
-        setSuccessData(data.message);
-        toast.success(data.message);
+        setSuccessData(data);
+        toast.success('Success!', {
+          description: 'Your information has been submitted.',
+        });
         form.reset();
         handleRemoveImage();
       } else {

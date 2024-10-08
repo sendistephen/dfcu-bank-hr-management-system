@@ -28,7 +28,7 @@ interface Employee {
 }
 
 interface RegisterSuccess {
-  message: string;
+  surname: string;
   success: boolean;
   employeeNumber: string;
 }

@@ -64,7 +64,8 @@ const GenerateCode = () => {
       {/* list of generated codes */}
       {loading ? (
         <div className="flex justify-center items-center mt-10">
-          <Loader2 className="w-8 h-8 text-gray-500 animate-spin" />
+          <Loader2 className="w-4 h-4 text-gray-500 animate-spin" />
+          <span className="text-xs text-neutral-500">Loading...</span>
         </div>
       ) : (
         <CodeListing codes={codes} />
