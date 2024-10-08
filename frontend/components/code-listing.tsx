@@ -1,11 +1,12 @@
 import { getRemainingTime } from '@/lib/utils';
+import { Check, XIcon } from 'lucide-react';
 import moment from 'moment';
 
 interface CodeListingProps {
   codes: {
     code: string;
     createdAt: string;
-    isUsed: boolean;
+    used: boolean;
     employee: {
       id: string;
       employeeNumber: string;
@@ -58,10 +59,14 @@ const CodeListing = ({ codes }: CodeListingProps) => {
                   {code.code}
                 </td>
                 <td className="py-1 px-2 text-gray-500">
-                  {moment(code.createdAt).format('MMMM Do YYYY, h:mm:ss a')}
+                  {moment(code.createdAt).format('MM/DD/YYYY')}
                 </td>
                 <td className="py-1 px-2 text-gray-500">
-                  {code.isUsed ? 'Yes' : 'No'}
+                  {code.used ? (
+                    <Check className="text-green-500 h-4 w-4" />
+                  ) : (
+                    <XIcon className="text-rose-500 h-4 w-4" />
+                  )}
                 </td>
                 <td className="py-1 px-2 text-gray-500">
                   {code.employee ? code.employee!.surname : 'N/A'}

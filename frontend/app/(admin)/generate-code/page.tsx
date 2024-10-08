@@ -11,7 +11,7 @@ import { generateCode, getAllGeneratedCodes } from '@/app/action/generate-code';
 const GenerateCode = () => {
   const [codes, setCodes] = useState([]);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
   const [shouldRefetch, setShouldRefetch] = useState(false);
 

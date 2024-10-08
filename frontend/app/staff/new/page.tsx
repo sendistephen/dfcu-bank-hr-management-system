@@ -29,7 +29,7 @@ import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 type FormValues = z.infer<typeof registerNewStaffFormSchema>;
 
@@ -93,7 +93,7 @@ const RegisterNewStaff = () => {
 
       const data = response.data;
 
-      console.log(response.data);
+      console.log('SUCESS++++++++++++++++', response.data);
       if (data.success) {
         setSuccessData(data.message);
 
@@ -104,8 +104,9 @@ const RegisterNewStaff = () => {
         toast.error(data.error);
       }
     } catch (err) {
-      toast.error('An error occurred. Please try again.');
-      console.error('Registration error:', err);
+      if (err instanceof AxiosError) {
+        setError(err.response?.data.message || 'Opps! Something went wrong');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -131,10 +132,6 @@ const RegisterNewStaff = () => {
     }
   };
 
-  /**
-   * Resets the `previewUrl` state and clears the value of the file input
-   * element.
-   */
   const handleRemoveImage = () => {
     setPreviewUrl(null);
     setError(null);
@@ -188,7 +185,7 @@ const RegisterNewStaff = () => {
                     <FormLabel>Date of birth *</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <FormControl className="h-7 rounded">
+                        <FormControl className="h-9 rounded">
                           <Button
                             variant={'outline'}
                             className={cn(

@@ -1,7 +1,7 @@
 'use client';
 
-import { Search, Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Search, Loader2, X } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import moment from 'moment';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,46 +13,22 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import axios from 'axios';
-import { useSession } from 'next-auth/react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import useEmployees from '@/hooks/useEmployees';
 
 const Employees = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
 
-  const { data: session } = useSession();
-  const accessToken = session?.accessToken;
+  const { employees, loading, error } = useEmployees(searchQuery);
 
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      setLoading(true);
-      setError('');
+  const filteredEmployees = useMemo(() => {
+    if (!searchQuery) return employees;
+    return employees.filter((employee) =>
+      employee.employeeNumber.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [employees, searchQuery]);
 
-      try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/staff`,
-          {
-            params: searchQuery ? { employeeNumber: searchQuery } : {},
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
-
-        setEmployees(Array.isArray(res.data) ? res.data : [res.data]);
-      } catch (err) {
-        setError('Failed to fetch employees. Please try again.');
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEmployees();
-  }, [accessToken, searchQuery]);
+  const clearSearch = () => setSearchQuery('');
 
   return (
     <div>
@@ -67,9 +43,16 @@ const Employees = () => {
               placeholder="Search employees..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 pr-10"
             />
             <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+
+            {searchQuery && (
+              <X
+                onClick={clearSearch}
+                className="absolute right-3 top-2.5 h-5 w-5 text-gray-400 cursor-pointer"
+              />
+            )}
           </div>
 
           {loading ? (
@@ -77,8 +60,8 @@ const Employees = () => {
               <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
             </div>
           ) : error ? (
-            <p>{error}</p>
-          ) : employees.length > 0 ? (
+            <p className="text-rose-600 leading-loose">{error}</p>
+          ) : filteredEmployees.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -89,7 +72,7 @@ const Employees = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {employees.map((employee: Employee) => (
+                {filteredEmployees.map((employee: Employee) => (
                   <TableRow key={employee.id}>
                     <TableCell>
                       <Avatar className="w-8 h-8">
@@ -97,15 +80,19 @@ const Employees = () => {
                           src={employee.photoId as string}
                           alt={employee.surname.charAt(0).toUpperCase()}
                         />
-                        <AvatarFallback>{employee.surname}</AvatarFallback>
+                        <AvatarFallback>
+                          {employee.surname.charAt(0).toUpperCase()}
+                        </AvatarFallback>
                       </Avatar>
                     </TableCell>
                     <TableCell>
                       {employee.surname} {employee.otherNames}
                     </TableCell>
-                    <TableCell>{employee.employeeNumber}</TableCell>
+                    <TableCell className="font-semibold">
+                      {employee.employeeNumber}
+                    </TableCell>
                     <TableCell>
-                      {moment(employee.dateOfBirth).format('YYYY-MMMM-DD')}
+                      {moment(employee.dateOfBirth).format('YYYY-MM-DD')}
                     </TableCell>
                   </TableRow>
                 ))}
