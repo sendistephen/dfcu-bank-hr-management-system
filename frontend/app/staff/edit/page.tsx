@@ -1,7 +1,7 @@
 import StaffForm from '@/components/staff-form';
 
-const StaffRegisterForm = () => {
+const EditEmployeePage = () => {
   return <StaffForm />;
 };
 
-export default StaffRegisterForm;
+export default EditEmployeePage;

@@ -118,7 +118,11 @@ export const updateStaff = async (req: CustomRequest, res: Response, next: NextF
       res.status(404).json({ message: 'Staff member not found' });
       return;
     }
-    res.status(200).json({ message: 'Staff updated successfully', staff: updatedStaff });
+    res.status(200).json({
+      success: true,
+      message: 'Staff updated successfully',
+      staff: updatedStaff,
+    });
     return;
   } catch (error) {
     next(error);

@@ -1,5 +1,6 @@
-import Image from "next/image";
-import Link from "next/link";
+import Image from 'next/image';
+import Link from 'next/link';
+import { Toaster } from 'sonner';
 
 export default function RootLayout({
   children,
@@ -22,6 +23,7 @@ export default function RootLayout({
       <main className="flex-1 bg-neutral-200 px-4 md:px-6 overflow-y-auto">
         {children}
       </main>
+      <Toaster />
     </div>
   );
 }
