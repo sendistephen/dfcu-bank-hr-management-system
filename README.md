@@ -7,7 +7,6 @@ This repository contains the backend and frontend for the DFCU Bank HR Managemen
 [Frontend](https://dfcu-bank-hr-management-system.vercel.app/)
 
 ## API Documentation
-## API Documentation
 
 For detailed API documentation, visit [Documentation](https://documenter.getpostman.com/view/3754373/2sAXxQdrbr).
 
