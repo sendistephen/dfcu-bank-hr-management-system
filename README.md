@@ -3,7 +3,15 @@
 This repository contains the backend and frontend for the DFCU Bank HR Management System. The backend is powered by Node.js, Express, Prisma, and TypeScript, while the frontend uses Next.js.
 
 [Backend API](https://dfcu-bank-hr-management-system-api.onrender.com/api)
+
 [Frontend](https://dfcu-bank-hr-management-system.vercel.app/)
+
+## API Documentation
+## API Documentation
+
+For detailed API documentation, visit [Documentation](https://documenter.getpostman.com/view/3754373/2sAXxQdrbr).
+
+This documentation provides examples, request and response formats, and explanations of all available endpoints for the DFCU Bank HR Management System.
 
 ## Project Overview
 
