@@ -1,5 +1,5 @@
 import { PrismaClient, StaffCode, Staff } from '@prisma/client';
-import { NotFoundError } from '../utils/customErrors';
+import { AppError, NotFoundError } from '../utils/customErrors';
 
 const prisma = new PrismaClient();
 
@@ -69,7 +69,7 @@ class StaffService {
     const parsedDateOfBirth = new Date(data.dateOfBirth);
 
     if (!data.code) {
-      throw new Error('Unique code is required for registration');
+      throw new AppError('Unique code is required for registration', 400);
     }
 
     // Validate the staff code
@@ -78,15 +78,15 @@ class StaffService {
     });
 
     if (!staffCode) {
-      throw new Error('Invalid code');
+      throw new AppError('Invalid code', 400);
     }
 
     if (staffCode.used) {
-      throw new Error('This code has already been used');
+      throw new AppError('This code has already been used', 400);
     }
 
     if (new Date() > staffCode.expiresAt) {
-      throw new Error('This code has expired');
+      throw new AppError('This code has expired', 400);
     }
 
     // Generate the employee number (e.g., DFCU123)
