@@ -1,7 +1,7 @@
 'use client';
 
 import { Search, Loader2, X } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import moment from 'moment';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -33,12 +33,15 @@ const Employees = () => {
     );
   }, [employees, searchQuery]);
 
-  const clearSearch = () => setSearchQuery('');
+  const clearSearch = useCallback(() => setSearchQuery(''), []);
 
-  const handleRowClick = (employee: Employee) => {
-    setSelectedEmployee(employee);
-    router.push(`/staff/edit?employeeId=${employee.employeeNumber}`);
-  };
+  const handleRowClick = useCallback(
+    (employee: Employee) => {
+      setSelectedEmployee(employee);
+      router.push(`/staff/edit?employeeId=${employee.employeeNumber}`);
+    },
+    [router, setSelectedEmployee]
+  );
 
   return (
     <div>
@@ -50,7 +53,7 @@ const Employees = () => {
           <div className="mb-4 relative">
             <Input
               type="text"
-              placeholder="Search employees..."
+              placeholder="Search employees by employee number e.g DFCU123..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 pr-10"
