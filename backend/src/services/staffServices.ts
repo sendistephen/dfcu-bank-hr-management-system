@@ -68,6 +68,10 @@ class StaffService {
   }): Promise<Staff> {
     const parsedDateOfBirth = new Date(data.dateOfBirth);
 
+    if (!data.code) {
+      throw new Error('Unique code is required for registration');
+    }
+
     // Validate the staff code
     const staffCode = await prisma.staffCode.findUnique({
       where: { code: data.code },

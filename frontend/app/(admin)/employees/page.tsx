@@ -1,7 +1,7 @@
 'use client';
 
 import { Search, Loader2, X } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import moment from 'moment';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,11 +15,16 @@ import {
 } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import useEmployees from '@/hooks/useEmployees';
+import { useRouter } from 'next/navigation';
+import { useEmployeeStore } from '@/lib/store';
 
 const Employees = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const { employees, loading, error } = useEmployees(searchQuery);
+  const { setSelectedEmployee } = useEmployeeStore();
+
+  const router = useRouter();
 
   const filteredEmployees = useMemo(() => {
     if (!searchQuery) return employees;
@@ -28,7 +33,15 @@ const Employees = () => {
     );
   }, [employees, searchQuery]);
 
-  const clearSearch = () => setSearchQuery('');
+  const clearSearch = useCallback(() => setSearchQuery(''), []);
+
+  const handleRowClick = useCallback(
+    (employee: Employee) => {
+      setSelectedEmployee(employee);
+      router.push(`/staff/edit?employeeId=${employee.employeeNumber}`);
+    },
+    [router, setSelectedEmployee]
+  );
 
   return (
     <div>
@@ -40,7 +53,7 @@ const Employees = () => {
           <div className="mb-4 relative">
             <Input
               type="text"
-              placeholder="Search employees..."
+              placeholder="Search employees by employee number e.g DFCU123..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 pr-10"
@@ -74,11 +87,20 @@ const Employees = () => {
               </TableHeader>
               <TableBody>
                 {filteredEmployees.map((employee: Employee) => (
-                  <TableRow key={employee.id}>
+                  <TableRow
+                    className="cursor-pointer"
+                    key={employee.id}
+                    onClick={() => handleRowClick(employee)}
+                  >
                     <TableCell>
                       <Avatar className="w-8 h-8">
                         <AvatarImage
-                          src={employee.photoId as string}
+                          className="object-cover"
+                          src={
+                            employee.photoId
+                              ? `data:image/png;base64,${employee.photoId}`
+                              : undefined
+                          }
                           alt={employee.surname.charAt(0).toUpperCase()}
                         />
                         <AvatarFallback>
