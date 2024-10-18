@@ -28,7 +28,11 @@ export default [
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-require-imports': 'off',
     },
-    ignores: ['!node_modules/', 'node_modules/*', 'dist/*', 'dist/**/*', 'dist/**/node_modules/**'],
+    env: {
+      node: true,
+      es6: true,
+    },
+    ignores: ['node_modules/**', 'dist/**', '!node_modules/'],
   },
   {
     plugins: {

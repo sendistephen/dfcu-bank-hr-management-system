@@ -1,23 +1,23 @@
 {
   "compilerOptions": {
-    "target": "ES2016",
+    "target": "ESNext",
     "module": "CommonJS",
-    "allowSyntheticDefaultImports": true,
-    "moduleResolution": "Node",
-    "outDir": "./dist",
-    "rootDir": "src",
     "baseUrl": ".",
-
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "allowJs": true,
+    "moduleResolution": "Node",
+    "outDir": "dist",
+    "importsNotUsedAsValues": "remove",
     "strict": true,
-    "skipLibCheck": true
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node", "jest"]
   },
-  "ts-node": {
-    "experimentalSpecifierResolution": "node",
-    "transpileOnly": true,
-    "esm": true
-  },
-  "include": ["src/**/*.ts", "src/prisma/**/*.ts", "**/*.d.ts"],
-  "exclude": ["node_modules", "dist/"]
+  "include": ["./src/**/*.ts", "./tests/**/*.ts", "./src/prisma/**/*"],
+
+  "exclude": ["node_modules"]
 }

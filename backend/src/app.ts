@@ -1,6 +1,6 @@
 import 'tsconfig-paths/register';
 import cors from 'cors';
-import cookieParser from 'cookie-parser';
+// import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import express from 'express';
 import helmet from 'helmet';
@@ -10,22 +10,21 @@ import adminRoutes from './routes/admin.routes';
 import authRoutes from './routes/auth.routes';
 import staffRoutes from './routes/staff.routes';
 import prisma from './utils/prisma';
-
-dotenv.config();
+import { config } from './config';
 
 const app = express();
-const PORT = process.env.PORT || 8900;
+const PORT = config.port;
 
 app.use(
   cors({
     origin: ['http://localhost:3000', 'https://dfcu-bank-hr-management-system.vercel.app'],
   })
 );
-
-app.use(helmet());
+// middleware that prevents common web attacts like xss,csrf, dns fetching attacks etc.
+app.use(helmet()); 
 
 app.use(express.json());
-app.use(cookieParser());
+// app.use(cookieParser());
 
 // Middleware for logging API performance
 app.use(logApiPerformance);

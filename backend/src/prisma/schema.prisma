@@ -30,7 +30,7 @@ model Staff {
   surname        String
   otherNames     String
   dateOfBirth    DateTime
-  photoId        String?
+  photoUrl       String?
   uniqueCode     String   @unique
   employeeNumber String   @unique
   createdAt      DateTime @default(now())
